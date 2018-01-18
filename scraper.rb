@@ -5,7 +5,6 @@ require 'nokogiri'
 
 # Uhrforum angebote scraper module
 module Scraper
-  # Call this to proccess a page
   def self.scrapepage(pagenumber)
     url = "https://uhrforum.de/angebote/index#{pagenumber}"
     doc = Nokogiri::HTML(open(url))

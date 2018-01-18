@@ -4,52 +4,55 @@ require './scraper'
 SLEEPINTERVAL = 900
 MAX_PAGECOUNT = 15
 
-def storerecord(record, redis)
-  # { id: id, sellstatus: sellstatus, text: text, link: link,
-  #   img: nil, timestamp: Time.now.to_i }
-  return if redis.exists(record[:id])
-  record.each_key { |key| redis.hset(record[:id], key, record[key]) }
-  record
-end
+# UFA to redis logic
+class Collect
+  attr_reader :redis
+  attr_accessor :recordqueue
 
-def storerecords(records)
-  r = Redis.new
-  storedcount = 0
-  records.each do |record|
-    result = storerecord(record, r)
-    storedcount += 1 unless result.nil?
+  def initialize
+    @redis = Redis.new
   end
-  storedcount
-end
 
-def parsepages(n)
-  records = []
-  n.times do |i|
-    # slow down
-    sleep(rand)
-    records |= Scraper.scrapepage(i + 1)
+  def testrecord(record)
+    redis.exists(record[:id])
   end
-  records.reverse
-end
 
-def testrecord(record, redis)
-  redis.exists(record[:id])
-end
+  def storerecord(record)
+    # { id: id, sellstatus: sellstatus, text: text, link: link,
+    #   img: nil, timestamp: Time.now.to_i }
+    return if testrecord(record)
+    record.each_key { |key| redis.hset(record[:id], key, record[key]) }
+    record
+  end
 
-def dopages(maxnumber)
-  index = 1
-  loop do
-    # parse some pages
-    break if index >= maxnumber
+  # call this to put records into redis
+  def storerecords(array)
+    return if array.nil?
+    return if array.empty?
+    count = 0
+    array.each do |record|
+      storerecord(record)
+      count += 1
+    end
+    count
+  end
+
+  def fillrecords
+    records = []
+    (1..MAX_PAGECOUNT).each do |page|
+      # get new records
+      newrecords = Scraper.scrapepage(page).reject { |r| testrecord(r) }
+      puts "#{Time.now} Page \##{page} Records: #{newrecords.count}"
+      break if newrecords.empty?
+      # we have something to proccess
+      records |= newrecords
+      # throttling
+      sleep(rand * page)
+    end
+    records.reverse
   end
 end
 
-def mainloopold
-  loop do
-    newentries = storerecords(parsepages(2))
-    puts newentries
-    sleep(SLEEPINTERVAL)
-  end
-end
-
-mainloopold
+c = Collect.new
+records = c.fillrecords
+c.storerecords(records)
