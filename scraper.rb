@@ -5,28 +5,29 @@ require 'nokogiri'
 
 # Uhrforum angebote scraper module
 module Scraper
-  def scrapepage(pagenumber)
+  # Call this to proccess a page
+  def self.scrapepage(pagenumber)
     url = "https://uhrforum.de/angebote/index#{pagenumber}"
     doc = Nokogiri::HTML(open(url))
     threads = doc.css('.threads').css('.threadbit')
+    records = []
     threads.each do |thread|
-      puts scrapethread(thread)
+      records.push(scrapethread(thread))
     end
+    records
   end
 
-  def removepunctuation(text)
+  def self.removepunctuation(text)
     return if text.nil?
     text.gsub(/[^\nA-Za-z0-9 ]/, '')
   end
 
-  def tokenize(text)
+  def self.tokenize(text)
     text = removepunctuation(text).downcase
     text.split
   end
 
-  private
-
-  def getimageurl(threadlink)
+  def self.getimageurl(threadlink)
     # Take it easy
     sleep(rand)
     postdoc = Nokogiri::HTML(open(threadlink))
@@ -39,7 +40,7 @@ module Scraper
     end
   end
 
-  def scrapethread(thread)
+  def self.scrapethread(thread)
     # title = thread.css('.threadinfo')[0]['title']
     text = thread.css('a.title').text
     sellstatus = thread.css('span.prefix>span').text[1]
