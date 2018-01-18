@@ -14,6 +14,16 @@ module Scraper
     end
   end
 
+  def removepunctuation(text)
+    return if text.nil?
+    text.gsub(/[^\nA-Za-z0-9 ]/, '')
+  end
+
+  def tokenize(text)
+    text = removepunctuation(text).downcase
+    text.split
+  end
+
   private
 
   def getimageurl(threadlink)
