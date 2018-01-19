@@ -51,8 +51,15 @@ class Collect
     end
     records.reverse
   end
+
+  def mainloop
+    loop do
+      records = fillrecords
+      storerecords(records)
+      sleep(SLEEPINTERVAL)
+    end
+  end
 end
 
 c = Collect.new
-records = c.fillrecords
-c.storerecords(records)
+c.mainloop
