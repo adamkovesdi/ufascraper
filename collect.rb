@@ -2,7 +2,7 @@ require 'redis'
 require './scraper'
 
 SLEEPINTERVAL = 900
-MAX_PAGECOUNT = 15
+MAX_PAGECOUNT = 30
 
 # UFA to redis logic
 class Collect
