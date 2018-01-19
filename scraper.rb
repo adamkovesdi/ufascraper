@@ -3,10 +3,12 @@
 require 'open-uri'
 require 'nokogiri'
 
+UFAURL = 'https://uhrforum.de/angebote/index'.freeze
+
 # Uhrforum angebote scraper module
 module Scraper
   def self.scrapepage(pagenumber)
-    url = "https://uhrforum.de/angebote/index#{pagenumber}"
+    url = UFAURL + pagenumber.to_s
     doc = Nokogiri::HTML(open(url))
     threads = doc.css('.threads').css('.threadbit')
     records = []
