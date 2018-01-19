@@ -2,6 +2,7 @@
 # written by Adam Kovesdi (c) 2017
 require 'open-uri'
 require 'nokogiri'
+require './datparser'
 
 UFAURL = 'https://uhrforum.de/angebote/index'.freeze
 
@@ -9,7 +10,7 @@ UFAURL = 'https://uhrforum.de/angebote/index'.freeze
 module Scraper
   def self.scrapepage(pagenumber)
     url = pagenumber
-    url = UFAURL + pagenumber.to_s if pagenumber.class == Fixnum
+    url = UFAURL + pagenumber.to_s if pagenumber.is_a?(Integer)
     doc = Nokogiri::HTML(open(url))
     threads = doc.css('.threads').css('.threadbit')
     records = []
@@ -42,16 +43,26 @@ module Scraper
     end
   end
 
-  def self.scrapethread(thread)
+  def self.parsemeta(text)
+    text.gsub!(/[[:space:]]/, ' ')
+    author, timestamp = text.split(' - ')
+    timestamp.gsub!(/Uhr/, '')
+    timestamp = Datparser.parsedate(timestamp)
+    [author, timestamp]
+  end
+
+  def self.scrapethread(thread) # rubocop:disable Metrics/AbcSize
     # title = thread.css('.threadinfo')[0]['title']
     text = thread.css('a.title').text
     sellstatus = thread.css('span.prefix>span').text[1]
     link = thread.css('a.title')[0]['href']
     id = thread['id'].split('_')[1]
+    author, timestamp = parsemeta(thread.css('.label').text)
     # Image fetching not implemented here
     # uuse the following helper method to get image:
     # url = getimageurl(threadlink)
     { id: id, sellstatus: sellstatus, text: text, link: link,
-      img: nil, timestamp: Time.now.to_i }
+      img: nil, timestamp: timestamp.to_i, author: author,
+      parsetime: Time.now.to_i }
   end
 end
