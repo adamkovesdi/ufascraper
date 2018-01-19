@@ -30,7 +30,6 @@ end
 get '/' do
   last2k = redisget
   if params.key?('filter')
-    p params['filter']
     last2k.select! { |h| h['text'].downcase.include?(params['filter']) }
   end
   array_to_table(last2k)
