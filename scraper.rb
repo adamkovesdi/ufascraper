@@ -8,7 +8,8 @@ UFAURL = 'https://uhrforum.de/angebote/index'.freeze
 # Uhrforum angebote scraper module
 module Scraper
   def self.scrapepage(pagenumber)
-    url = UFAURL + pagenumber.to_s
+    url = pagenumber
+    url = UFAURL + pagenumber.to_s if pagenumber.class == Fixnum
     doc = Nokogiri::HTML(open(url))
     threads = doc.css('.threads').css('.threadbit')
     records = []
