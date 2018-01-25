@@ -10,7 +10,7 @@ class Collect
   attr_accessor :recordqueue
 
   def initialize
-    @redis = Redis.new
+    @redis = Redis.new(host: 'redis')
   end
 
   def testrecord(record)
@@ -41,6 +41,7 @@ class Collect
     records = []
     (1..MAX_PAGECOUNT).each do |page|
       # get new records
+      initialize
       newrecords = Scraper.scrapepage(page).reject { |r| testrecord(r) }
       puts "#{Time.now} Page \##{page} Records: #{newrecords.count}"
       break if newrecords.empty?
@@ -62,4 +63,5 @@ class Collect
 end
 
 c = Collect.new
+$stdout.sync = true
 c.mainloop

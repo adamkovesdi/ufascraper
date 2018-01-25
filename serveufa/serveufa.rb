@@ -7,7 +7,7 @@ def td(text)
 end
 
 def redisget
-  r = Redis.new
+  r = Redis.new(host: 'redis')
   last_keys = r.scan(0, count: '2000')[1]
   array = last_keys.map { |o| r.hgetall(o) }
   array.sort_by { |h| h['timestamp'] }.reverse

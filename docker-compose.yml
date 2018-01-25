@@ -1,0 +1,28 @@
+version: "2"
+services:
+  collect:
+    build: ./collect
+    image: adamkov/collectufa
+    command: ruby collect.rb
+    depends_on:
+      - redis
+    links:
+      - redis
+  serveufa:
+    build: ./serveufa
+    image: adamkov/serveufa
+    command: ruby serveufa.rb -o 0.0.0.0
+    ports:
+      - "4567:4567"
+    depends_on:
+      - redis
+    links:
+      - redis
+  redis:
+    container_name: redis
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redisdata:/data
