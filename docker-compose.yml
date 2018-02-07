@@ -2,18 +2,26 @@ version: "2"
 services:
   collect:
     build: ./collect
-    image: adamkov/collectufa
+    image: adamkov/ufacollect
     command: ruby collect.rb
     depends_on:
       - redis
     links:
       - redis
   serveufa:
-    build: ./serveufa
-    image: adamkov/serveufa
+    build: ./serve
+    image: adamkov/ufaserve
     command: ruby serveufa.rb -o 0.0.0.0
     ports:
       - "4567:4567"
+    depends_on:
+      - redis
+    links:
+      - redis
+  notify:
+    build: ./notify
+    image: adamkov/ufanotify
+    command: ruby notify.rb
     depends_on:
       - redis
     links:
