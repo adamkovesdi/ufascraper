@@ -67,7 +67,7 @@ services:
       - redis
     links:
       - redis
-  serveufa:
+  serve:
     build: ./serve
     image: adamkov/ufaserve
     command: ruby serveufa.rb -o 0.0.0.0
