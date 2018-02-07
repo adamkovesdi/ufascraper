@@ -27,7 +27,6 @@ services:
     links:
       - redis
   redis:
-    container_name: redis
     image: redis:alpine
     command: redis-server --appendonly yes
     volumes:

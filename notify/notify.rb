@@ -60,6 +60,7 @@ def processkeyword(keyword)
   end
 end
 
+$stdout.sync = true
 log('Starting')
 loop do
   sleep SLEEPINTERVAL
