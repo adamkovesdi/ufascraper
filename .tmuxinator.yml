@@ -1,0 +1,9 @@
+---
+name: rubydev
+windows:
+- ruby:
+    layout: 4b63,195x63,0,0{145x63,0,0[145x50,0,0,0,145x12,0,51,4],49x63,146,0,3}
+    panes:
+    - vim *.rb
+    - clear
+    - guard
