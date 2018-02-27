@@ -7,6 +7,7 @@ URL = 'https://api.pushjet.io/message'.freeze
 COUNT = 2000
 REDISHOST = 'redis'.freeze
 SLEEPINTERVAL = 60
+ERRORSLEEPINTERVAL = 1200
 SECRET = File.read('secret.txt').chomp.strip
 
 def log(text)
@@ -24,9 +25,16 @@ def assemblemessage(text, url)
   data
 end
 
-def notify(item)
-  log("Notification for #{item['id']}")
-  RestClient.post(URL, assemblemessage(item['text'], item['link']))
+def notify(item, keyword)
+  log("New item for notification #{item['id']} #{item['text']}")
+  begin
+    RestClient.post(URL, assemblemessage(item['text'], item['link']))
+    redismarknotified(keyword, item['id'])
+    log(item)
+  rescue StandardError => e
+    log("Failed notification for #{item['id']} error: #{e}")
+    sleep(ERRORSLEEPINTERVAL)
+  end
 end
 
 def redisgetarray
@@ -53,9 +61,7 @@ def processkeyword(keyword)
       # already have it
       # log("Already have #{keyword},#{item['id']}")
     else
-      log(item)
-      notify(item)
-      redismarknotified(keyword, item['id'])
+      notify(item, keyword)
     end
   end
 end
